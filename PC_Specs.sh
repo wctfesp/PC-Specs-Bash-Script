@@ -1,12 +1,26 @@
 #!/bin/bash
 
+pause() {
+  read -p $'\nPress Enter To Continue...'
+}
+
+check_file() {
+  if [[ -f "$RESULT" ]]; then
+    printf "\nFile Exists at: $1\n"
+    return 0
+  else
+    printf "\nFile Not Found!\n"
+    return 1
+  fi
+}
+
 while true; do
   clear
   echo "=== SYSTEM INFORMATION ==="
   echo -e "  == Hello $LOGNAME! ==\n"
 
   PS3=$'\nChoose An Option: '
-  select option in "Memory Usage" "CPU Information" "NVIDIA Information" "Check Disk Space" "Check IP ADDR" "Uptime" "Exit"; do
+  select option in "Memory Usage" "CPU Information" "NVIDIA Information" "Check Disk Space" "Check IP ADDR" "Uptime" "Find File" "Exit"; do
     case $option in
     "Memory Usage")
       free -h
@@ -36,7 +50,7 @@ while true; do
             echo "Invalid Option!"
             ;;
           esac
-          read -p $'\nPress Enter To Continue...'
+          pause
           break
         done
       done
@@ -60,6 +74,11 @@ while true; do
     "Uptime")
       uptime -p | cut -d ' ' -f 2,3,4,5
       ;;
+    "Find File")
+      read -p $'\nEnter a file path to see if it exists!\n' filepath
+      RESULT=$(find / -type f -iname "$filepath" 2>/dev/null)
+      check_file "$RESULT"
+      ;;
     "Exit")
       echo "Goodbye!"
       break 2
@@ -68,7 +87,7 @@ while true; do
       echo "Invalid Option!"
       ;;
     esac
-    read -p $'\nPress Enter To Continue...'
+    pause
     break
   done
 done

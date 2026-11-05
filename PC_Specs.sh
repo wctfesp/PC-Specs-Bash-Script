@@ -57,7 +57,7 @@ while true; do
   echo -e "  == Hello $LOGNAME! ==\n"
 
   PS3=$'\nChoose An Option: '
-  select option in "Memory Usage" "CPU Information" "GPU Information" "Check Disk Space" "Check IP ADDR" "Uptime" "Find File" "Exit"; do
+  select option in "Memory Usage" "CPU Information" "GPU Information" "Check Disk Space" "Networking" "Uptime" "Find File" "Exit"; do
     case $option in
     "Memory Usage")
       free -h
@@ -137,8 +137,32 @@ while true; do
         echo Storage Is Fine.
       fi
       ;;
-    "Check IP ADDR")
-      ip -4 addr show wlan0 | grep inet | tr -s ' ' | cut -d ' ' -f 3
+    "Networking")
+      while true; do
+        clear
+        printf "\nChoose from a variety of options to test your networking out!\n\n"
+        select nw in "IP Address" "Pinging" "Go Back"; do
+          case $nw in
+          "IP Address")
+            NETWORK_INTERFACE=$(ip -br -4 addr | awk '$2 == "UP"' | cut -d ' ' -f 1)
+            ip -4 addr show "$NETWORK_INTERFACE" | grep inet | tr -s ' ' | cut -d ' ' -f 3
+            ;;
+          "Pinging")
+            read -p $'\nEnter a address to ping: ' ping_out
+            read -p $'\nHow many times do you wish to ping: ' numb_pack
+            ping -c $numb_pack "$ping_out"
+            ;;
+          "Go Back")
+            break 2
+            ;;
+          *)
+            echo "Invalid Option!"
+            ;;
+          esac
+          pause
+          break
+        done
+      done
       ;;
     "Uptime")
       uptime -p | cut -d ' ' -f 2,3,4,5

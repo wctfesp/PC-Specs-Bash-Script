@@ -14,13 +14,50 @@ check_file() {
   fi
 }
 
+case "$1" in
+--help)
+  echo "DESCRIPTION:
+  A menu-driven Linux system information utility.
+
+USAGE:
+  ./PC_Specs.sh [OPTION]
+
+OPTIONS:
+  --help       Show available options
+  --version    Show current version
+
+FEATURES:
+  Memory usage
+  CPU information
+  NVIDIA GPU information
+  Disk space monitoring
+  Network information
+  System uptime
+  File searching
+
+version 1.0"
+  exit 0
+  ;;
+--version)
+  echo "PC_Specs.sh version 1.0"
+  exit 0
+  ;;
+"")
+  echo "Launching interactive menu..."
+  ;;
+*)
+  echo "Unknown option!"
+  exit 1
+  ;;
+esac
+
 while true; do
   clear
   echo "=== SYSTEM INFORMATION ==="
   echo -e "  == Hello $LOGNAME! ==\n"
 
   PS3=$'\nChoose An Option: '
-  select option in "Memory Usage" "CPU Information" "NVIDIA Information" "Check Disk Space" "Check IP ADDR" "Uptime" "Find File" "Exit"; do
+  select option in "Memory Usage" "CPU Information" "GPU Information" "Check Disk Space" "Check IP ADDR" "Uptime" "Find File" "Exit"; do
     case $option in
     "Memory Usage")
       free -h
@@ -28,8 +65,29 @@ while true; do
     "CPU Information")
       lscpu | grep "Model name" | sed 's/  */ /g'
       ;;
-    "NVIDIA Information")
-      nvidia-smi --query-gpu=name | grep NVIDIA
+    "GPU Information")
+      while true; do
+        clear
+        printf "\nChoose if you want to search for your GPU or automatically find your NVIDIA GPU\n\n"
+        select gpu in "Find GPU" "Find NVIDIA GPU" "Go Back"; do
+          case $gpu in
+          "Find GPU")
+            lspci | grep -Ei 'vga|3d|display'
+            ;;
+          "Find NVIDIA GPU")
+            nvidia-smi --query-gpu=name | grep NVIDIA
+            ;;
+          "Go Back")
+            break 2
+            ;;
+          *)
+            echo "Invalid Option!"
+            ;;
+          esac
+          pause
+          break
+        done
+      done
       ;;
     "Check Disk Space")
       while true; do

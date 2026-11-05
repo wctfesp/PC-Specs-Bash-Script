@@ -69,13 +69,24 @@ while true; do
       while true; do
         clear
         printf "\nChoose if you want to search for your GPU or automatically find your NVIDIA GPU\n\n"
+        if command -v nvidia-smi &>/dev/null; then
+          printf "NVIDIA Utility Found! Recommended: Find NVIDIA GPU\n"
+          GPU_STATUS=0
+        else
+          printf "No NVIDIA Utility Found!\n"
+          GPU_STATUS=1
+        fi
         select gpu in "Find GPU" "Find NVIDIA GPU" "Go Back"; do
           case $gpu in
           "Find GPU")
             lspci | grep -Ei 'vga|3d|display'
             ;;
           "Find NVIDIA GPU")
-            nvidia-smi --query-gpu=name | grep NVIDIA
+            if [[ $GPU_STATUS == 0 ]]; then
+              nvidia-smi --query-gpu=name | grep NVIDIA
+            else
+              printf "No NVIDIA GPU Detected."
+            fi
             ;;
           "Go Back")
             break 2
